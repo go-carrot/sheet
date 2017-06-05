@@ -3,7 +3,7 @@ package sheet
 import (
 	"encoding/csv"
 	"fmt"
-	"os"
+	"io"
 )
 
 type Handler func(params []string, data *map[string]interface{}) error
@@ -19,21 +19,17 @@ type Row struct {
 }
 
 type CSV struct {
-	FilePath   string
+	Data       io.ReadCloser
 	IgnoreRows []int
 	Row        Row
 }
 
 func Consume(csvDefinition CSV) error {
-	// Open the CSV file for reading
-	file, err := os.Open(csvDefinition.FilePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+	// Defer closing the file
+	defer csvDefinition.Data.Close()
 
 	// New CSV Reader
-	reader := csv.NewReader(file)
+	reader := csv.NewReader(csvDefinition.Data)
 	records, err := reader.ReadAll()
 	if err != nil {
 		return err
