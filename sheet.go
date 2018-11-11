@@ -22,6 +22,7 @@ type CSV struct {
 	Data       io.ReadCloser
 	IgnoreRows []int
 	Row        Row
+	Delimiter  rune
 }
 
 func Consume(csvDefinition CSV) error {
@@ -30,6 +31,9 @@ func Consume(csvDefinition CSV) error {
 
 	// New CSV Reader
 	reader := csv.NewReader(csvDefinition.Data)
+	if csvDefinition.Delimiter != 0 {
+		reader.Comma = csvDefinition.Delimiter
+	}
 	records, err := reader.ReadAll()
 	if err != nil {
 		return err
